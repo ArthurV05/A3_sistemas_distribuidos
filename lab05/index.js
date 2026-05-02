@@ -25,17 +25,82 @@ app.listen(3000, () => {
     });
 });
 
+app.get('/jogos', (req,res) => {
+    let data = fs.readFileSync(arquivo);
+    let jogos = JSON.parse(data);
 
+    // Verificando se foi passado um parâmetro de busca
+    if (req.query.nome) {
+        jogos = jogos.filter(jogo => jogo.nome.toLowerCase().includes(req.query.nome.toLowerCase()));
+    }
+    res.send(jogos);
+});
 
+app.get('/jogos/:id', (req,res) => {
+    let data = fs.readFileSync(arquivo);
+    let jogos = JSON.parse(data);
+    let jogo = jogos.find(j => j.id == req.params.id);
 
-// app.get('/', (req, res) => res.send('Servidor rodando, tudo ok!') )
+    if (jogo) {
+        res.send(jogo);
+    } else {
+        res.status(404).send('jogo não encontrado. ');
+    }
+});
 
+//rotas
 
-// app.get('/jogos', (req,res) => {
-//     let jogos = [
-//         {nome: 'The Legend of Zelda: Breath of the Wild', plataforma: 'Nintendo Switch'},
-//         {nome: 'God of War', plataforma: 'PlayStation 4'},
-//         {nome: 'Red Dead Redemption 2', plataforma: 'PlayStation 4, Xbox One, PC'},
-//     ];
-//     res.send(jogos);
-// }); 
+app.post('/jogos', (req,res) => {
+    let data = fs.readFileSync()
+    let jogos = JSON.parse(data);
+    let novoJogo = req.body;
+
+    novoJogo.id = jogos.legth + 1;
+    jogos.push(novoJogo);
+
+    fs.writeFileSync(arquivo, JSON.stringify(jogos));
+    res.status(201).send(novoJogo);
+
+});
+
+//Realiza um parse do body para uma estrutura do JSON
+app.use(express.json());
+
+app.put('/jogos/:id', (req,res) => {
+    let data = fs.readFileSync(arquivo);
+    let jogos = JSON.parse(data);
+    let novoValor = req.body;
+
+    let jogo = jogos.find(jogo =>{
+        if(jogo.id == req.params.id){
+            jogo.nome = novoValor.nome;
+            jogo.categoria = novoValor.categoria;
+            jogo.ano = novoValor.ano;
+            fs.writeFileSync(arquivo, JSON.stringify(jogos));
+            return jogo;
+        }
+    });
+    if (jogo){
+        res.send(jogo);
+    } else {
+        res.status(404).send('jogo não encontrado. ');
+    }
+});
+
+app.delete('/jogos/:id', (req,res) => {
+    let data = fs.readFileSync(arquivo);
+    let jogos = JSON.parse(data);
+
+    //Verifica se algum jogo foi removido
+    if (!jogos.find(jogo => jogo.id == req.params.id)) {
+        return res.status(404).send('jogo não encontrado. ')
+    };
+    //Filtra o array para remover o jogo com id especificado
+    let jogosAtualizados = jogos.filter(jogo => jogo.id != req.params.id);
+
+    //Escreve o array atualizado de volta no arquivo
+    fs.writeFileSync(arquivo, JSON.stringify(jogosAtualizados));
+    res.send('jogo removido com sucesso. ');
+    
+});
+
