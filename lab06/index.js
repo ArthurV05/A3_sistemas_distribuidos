@@ -14,31 +14,44 @@ app.listen(APP_PORT, () => {
 
 app.get('/', (req,res) => res.send('API Version 1.1.0 on-line!'));
 
-app.get('/jogos/:id', (req,res) => {
-    let data = fs.readFileSync(arquivo);
-    let jogos = JSON.parse(data);
-    let jogo = jogos.find(j => j.id == req.params.id);
-
-    if (jogo) {
-        res.send(jogo);
-    } else {
-        res.status(404).send('jogo não encontrado. ');
+app.get('/jogos', (req, res) => {
+    let query = 'SELECT * FROM jogos';
+    //Verifica se foi passada um parâmetro de categoria
+    if (req.query.categoria) {
+        query += "WHERE categoria LIKE '%" + req.query.categoria + "%'";
     }
+
+    db.all(query, [], (err, jogos) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.send(jogos);
+    });
+});
+
+app.get('/jogos/:id', (req, res) => {
+    let query = 'SELECT * FROM jogos WHERE id = ?';
+    db.get(query, [req.params.id], (err, jogo) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (jogo) {
+            res.send(jogo);
+        } else {
+            res.status(404).send('Jogo não encontrado. ');
+        }
+    });
 });
 
 //rotas
 
 app.post('/jogos', (req,res) => {
-    let data = fs.readFileSync()
-    let jogos = JSON.parse(data);
-    let novoJogo = req.body;
+    const {nome, categoria, ano} = req.body;
+    if (!nome && !categoria && !ano) {
+        return res.status(400).json({ error: 'Campos nome, categoria e ano são obrigatórios.'});
+    }
 
-    novoJogo.id = jogos.legth + 1;
-    jogos.push(novoJogo);
-
-    fs.writeFileSync(arquivo, JSON.stringify(jogos));
-    res.status(201).send(novoJogo);
-
+    db.run("INSERT INTO jogos (nome, categoria, ano) VALUES (?, ?, ?)",
+        [nome, categoria, ano], function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.status(201).json({ id: this.lastID, nome});
+    });
 });
 
 //Realiza um parse do body para uma estrutura do JSON
