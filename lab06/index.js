@@ -57,41 +57,36 @@ app.post('/jogos', (req,res) => {
 //Realiza um parse do body para uma estrutura do JSON
 app.use(express.json());
 
-app.put('/jogos/:id', (req,res) => {
-    let data = fs.readFileSync(arquivo);
-    let jogos = JSON.parse(data);
-    let novoValor = req.body;
+app.put('/jogos/:id', (req, res) => {
+    const { nome, categoria, ano } = req.body;
+    const id = req.params.id;
 
-    let jogo = jogos.find(jogo =>{
-        if(jogo.id == req.params.id){
-            jogo.nome = novoValor.nome;
-            jogo.categoria = novoValor.categoria;
-            jogo.ano = novoValor.ano;
-            fs.writeFileSync(arquivo, JSON.stringify(jogos));
-            return jogo;
+    let query = "SELECT * FROM jogos where id = ?";
+    
+    db.get(query, [id], (err, jogo) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        if (jogo) {
+            db.run(
+                "UPDATE jogos set nome = ?, categoria = ?, ano = ? where id = ?",
+                [nome, categoria, ano, id],
+                function (err) {
+                    if (err) return res.status(500).json({ error: err.message });
+
+                    res.send(jogo);
+                }
+            );
+        } else {
+            res.status(404).send('Jogo não encontrado.');
         }
     });
-    if (jogo){
-        res.send(jogo);
-    } else {
-        res.status(404).send('jogo não encontrado. ');
-    }
 });
 
 app.delete('/jogos/:id', (req,res) => {
-    let data = fs.readFileSync(arquivo);
-    let jogos = JSON.parse(data);
-
-    //Verifica se algum jogo foi removido
-    if (!jogos.find(jogo => jogo.id == req.params.id)) {
-        return res.status(404).send('jogo não encontrado. ')
-    };
-    //Filtra o array para remover o jogo com id especificado
-    let jogosAtualizados = jogos.filter(jogo => jogo.id != req.params.id);
-
-    //Escreve o array atualizado de volta no arquivo
-    fs.writeFileSync(arquivo, JSON.stringify(jogosAtualizados));
-    res.send('jogo removido com sucesso. ');
-    
+    const id = req.params.id;
+    db.run("DELETE FROM jogos where id = ?", [id], function (err) {
+        if (err) return res.status(500).json({ error: err.message});
+        res.send('Jogo removido com sucesso.');
+    });
 });
 
