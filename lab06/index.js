@@ -74,7 +74,7 @@ app.put('/jogos/:id', (req, res) => {
                     if (err) return res.status(500).json({ error: err.message });
 
                     res.send(jogo);
-                }
+                }   
             );
         } else {
             res.status(404).send('Jogo não encontrado.');

@@ -52,7 +52,7 @@ class Database {
     _seed() {
         const query = "INSERT OR IGNORE INTO empresas (nome) VALUES (?)";
         this.db.run(query, ["Nintendo"], (err) => {
-            if (err) console.error("ERrro ao criar empesa: ", err.messsage);
+            if (err) console.error("Erro ao criar empesa: ", err.messsage);
             else console.log("Empresa criada.");
         });
         this.db.run(query, ["Ubisoft"], (err) => {

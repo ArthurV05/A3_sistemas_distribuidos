@@ -24,24 +24,12 @@ app.get('/jogos', (req,res) => {
 app.get('/jogos/:id', (req, res) => {
 
     const id = req.params.id;
-    JogoDAO.findById(id, (err, jogos) => {
+    JogoDAO.findById(id, (err, jogo) => {
         if (err) return res.status(500).json({ error: err.message });
         if (jogo) {
             res.json(jogo);
         } else {
-            res.status(404).send('Jogo não encontrado. ');
-        }
-    });
-});
-
-app.get('/jogos/:id', (req, res) => {
-    let query = 'SELECT * FROM jogos WHERE id = ?';
-    db.get(query, [req.params.id], (err, jogo) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (jogo) {
-            res.send(jogo);
-        } else {
-            res.status(404).send('Jogo não encontrado. ');
+            res.status(404).json('Jogo não encontrado. ');
         }
     });
 });
@@ -82,3 +70,54 @@ app.delete('/jogos/:id', (req,res) => {
     });
 });
 
+//Empresa
+app.get('/empresas', (req,res) =>{
+    EmpresaDAO.findAll((req.params.id), (err, empresa) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(empresa);
+    });
+});
+
+app.get('/empresas/:id', (req,res) => {
+    const id = req.params.id;
+    EmpresaDAO.findById(id, (err, empresa) => {
+        if (err) return res.status(500).json({ error: err.message});
+        if (empresa) {
+            res.json(empresa);
+        } else {
+            res.status(404).json({error: err.message});
+        }
+    });
+});
+
+app.post('/empresas', (req, res) => {
+    const {nome} = req.body;
+    if (!nome) return res.status(400).json({ error: "Campo nome é obrigatório."});
+
+    EmpresaDAO.create(nome, (err, empresa) => {
+        if (err) return res.status(500).json({ error: err.message});
+        res.status(201).json(empresa);
+    });
+
+});
+
+app.put('/empresas/:id', (req, res) => {
+    const {nome} = req.body;
+    const id = req.params.id;
+
+    EmpresaDAO.update(id, nome, (err, empresa) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!empresa) return res.status(404).json({ error: "Empresa não encontrada"});
+        res.json(empresa);
+    });
+});
+
+app.delete('/empresas/:id', (req, res) => {
+    const id = req.params.id;
+
+    EmpresaDAO.delete(id, (err, empresa) => {
+        if(err) return res.status(500).json({ error: err.message });
+        if (!empresa) return res.status(404).json({ error: "Empresa não encontrada"});
+        res.json({message: "Empresa removida com sucesso."});
+    });
+});
