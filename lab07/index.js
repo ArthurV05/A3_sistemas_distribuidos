@@ -21,6 +21,7 @@ app.get('/jogos', (req,res) => {
     });
 });
 
+
 app.get('/jogos/:id', (req, res) => {
 
     const id = req.params.id;
@@ -72,7 +73,7 @@ app.delete('/jogos/:id', (req,res) => {
 
 //Empresa
 app.get('/empresas', (req,res) =>{
-    EmpresaDAO.findAll((req.params.id), (err, empresa) => {
+    EmpresaDAO.findAll(req.query.categoria, (err, empresa) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(empresa);
     });
@@ -85,7 +86,7 @@ app.get('/empresas/:id', (req,res) => {
         if (empresa) {
             res.json(empresa);
         } else {
-            res.status(404).json({error: err.message});
+            res.status(404).json({error: "Empresa não encontrada"});
         }
     });
 });
