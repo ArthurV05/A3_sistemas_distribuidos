@@ -1,7 +1,6 @@
 const express = require('express');
-const JogoDAO = require('./daos/jogoDAO');
-const EmpresaDAO = require('./daos/empresaDAO');
-//const db = require('./db').db; //Importa a instância do banco de dados
+const JogoController = require('./controllers/JogoController');
+const EmpresaController = require('./controllers/EmpresaController');
 
 const app = express();
 const APP_PORT = process.env.APP_PORT || 3000;
@@ -9,13 +8,10 @@ const APP_PORT = process.env.APP_PORT || 3000;
 //Realiza um parse do body para uma estrutura do JSON
 app.use(express.json());
 
-app.listen(APP_PORT, () => {
-    console.log(`API de jogo em execução na porta ${APP_PORT}`);
-    console.log(`Acesse a url http://localhost:${APP_PORT}`);
-});
+app.get('/', (req, res) => res.send('API Version 1.2.0 on-line!'))
 
 app.get('/jogos', (req,res) => {
-    JogoDAO.findAll(req.query.categoria, (err, jogos) => {
+    JogoController.findAll(req.query.categoria, (err, jogos) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(jogos);
     });

@@ -56,7 +56,7 @@ module.exports = JogoDAO;
 const db = require("../db").db;
 const Empresa = require("../models/Empresa");
 
-class empresaDAO{
+class EmpresaDAO{
     static findAll(nome, callback) {
         const query = "SELECT * FROM empresa";
         

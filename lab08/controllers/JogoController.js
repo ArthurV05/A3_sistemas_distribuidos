@@ -1,4 +1,3 @@
-const { prototype } = require('../daos');
 const JogoDAO = require('../daos/JogoDAO');
 
 class JogoController {
