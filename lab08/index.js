@@ -8,113 +8,20 @@ const APP_PORT = process.env.APP_PORT || 3000;
 //Realiza um parse do body para uma estrutura do JSON
 app.use(express.json());
 
+
 app.get('/', (req, res) => res.send('API Version 1.2.0 on-line!'))
 
-app.get('/jogos', (req,res) => {
-    JogoController.findAll(req.query.categoria, (err, jogos) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(jogos);
-    });
-});
+
+app.get('/jogos', JogoController.index);
+app.get('/jogos/:id', JogoController.show);
+app.post('/jogos', JogoController.create);
+app.put('/jogos/:id', JogoController.update);
+app.delete('/jogos/:id', JogoController.delete);
+
+app.get('/empresas', EmpresaController.index);
+app.get('/empresas/:id', EmpresaController.show);
+app.post('/empresas', EmpresaController.create);
+app.put('/empresas/:id', EmpresaController.update);
+app.delete('/empresas/:id', EmpresaController.delete);
 
 
-app.get('/jogos/:id', (req, res) => {
-
-    const id = req.params.id;
-    JogoDAO.findById(id, (err, jogo) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (jogo) {
-            res.json(jogo);
-        } else {
-            res.status(404).json('Jogo não encontrado. ');
-        }
-    });
-});
-
-//rotas
-
-app.post('/jogos', (req,res) => {
-    const {nome, categoria, ano, fkEmpresa} = req.body;
-    if (!nome && !categoria && !ano && !fkEmpresa) return res.status(400)
-        .json({ error: "Campos nome, categoria e ano são obrigatórios."});
-    jogoDAO.create(nome, categoria, ano, fkEmpresa, (err, id) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.status(201).json({ id, nome, categoria, ano, fkEmpresa });
-    });
-});
-
-//Realiza um parse do body para uma estrutura do JSON
-app.use(express.json());
-
-app.put('/jogos/:id', (req,res) => {
-    const {nome, categoria, ano } = req.body;
-    const id = req.params.id;
-
-    jogoDAO.update(id, nome, categoria, ano, (err, jogo) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!jogo) return res.status(404).send('Jogo não encontrado. ');
-        res.json(jogo);
-    });
-});
-
-app.delete('/jogos/:id', (req,res) => {
-    const id = req.params.id;
-
-    jogoDAO.delete(id, (err, jogo) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!jogo) return res.status(404).send('Jogo não encontrado. ');
-        res.json(jogo);
-    });
-});
-
-//Empresa
-app.get('/empresas', (req,res) =>{
-    EmpresaDAO.findAll(req.query.categoria, (err, empresa) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(empresa);
-    });
-});
-
-app.get('/empresas/:id', (req,res) => {
-    const id = req.params.id;
-    EmpresaDAO.findById(id, (err, empresa) => {
-        if (err) return res.status(500).json({ error: err.message});
-        if (empresa) {
-            res.json(empresa);
-        } else {
-            res.status(404).json({error: "Empresa não encontrada"});
-        }
-    });
-});
-
-app.post('/empresas', (req, res) => {
-    const {nome} = req.body;
-    if (!nome) return res.status(400).json({ error: "Campo nome é obrigatório."});
-
-    EmpresaDAO.create(nome, (err, empresa) => {
-        if (err) return res.status(500).json({ error: err.message});
-        res.status(201).json(empresa);
-    });
-
-});
-
-app.put('/empresas/:id', (req, res) => {
-    const {nome} = req.body;
-    const id = req.params.id;
-
-    EmpresaDAO.update(id, nome, (err, empresa) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!empresa) return res.status(404).json({ error: "Empresa não encontrada"});
-        res.json(empresa);
-    });
-});
-
-app.delete('/empresas/:id', (req, res) => {
-    const id = req.params.id;
-
-    EmpresaDAO.delete(id, (err, empresa) => {
-        if(err) return res.status(500).json({ error: err.message });
-        if (!empresa) return res.status(404).json({ error: "Empresa não encontrada"});
-        res.json({message: "Empresa removida com sucesso."});
-    });
-});
