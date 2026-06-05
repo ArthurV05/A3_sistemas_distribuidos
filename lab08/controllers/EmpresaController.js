@@ -1,10 +1,10 @@
-const empresaDAO = require('..(daos/empresaDAO)');
+const empresaDAO = require('../daos/EmpresaDAO');
 
 class EmpresaController {
     index(req, res) {
-        empresaDAO.findAll(req.query.categoria, (err, empresa) => {
+        empresaDAO.findAll(req.query.nome, (err, empresas) => {
             if (err) return res.status(500).json({ error: err.message });
-            res.json(empresa);
+            res.json(empresas);
         });
     }
 
@@ -23,14 +23,13 @@ class EmpresaController {
 
     create(req, res) {
         const { nome } = req.body;
-        if (!nome) return res.status(404)
+        if (!nome) return res.status(400)
             .json({ error: "Dados incompletos." });
 
         empresaDAO.create(nome, (err, empresa) => {
             if (err) return res.status(500).json({ error: err.message });
             res.status(201).json(empresa);
         });
-
     };
 
     update(req, res) {
@@ -44,7 +43,7 @@ class EmpresaController {
         });
     }
 
-    delete (req, res) {
+    delete(req, res) {
         const id = req.params.id;
         
         empresaDAO.delete(id, (err, empresa) => {

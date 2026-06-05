@@ -12,36 +12,54 @@ class JogoController {
     show(req, res) {
         const id = req.params.id;
 
-        JogoDAO.findbyId(id, (err, jogo) => {
+        JogoDAO.findById(id, (err, jogo) => {
             if (err) return res.status(500).json({ error: err.message });
+
             if (jogo) {
                 res.json(jogo);
             } else {
-                return res.status(404).json({ error: "Jogo não encontrado." })
+                return res.status(404).json({ error: "Jogo não encontrado." });
             }
         });
     }
 
     create(req, res) {
-        const { nome, categoria, ano, fkempresa } = req.body;
-        if (!nome && !categoria && !ano && !fkempresa) return res.status(404)
-            .json({ error: "Campos nome, categoria e ano são obrigatórios." });
+        const { nome, categoria, ano, fk_empresa } = req.body;
 
-        JogoDAO.create(nome, categoria, ano, fkempresa, (err, jogo) => {
+        if (!nome || !categoria || !ano || !fk_empresa) {
+            return res.status(400).json({
+                error: "Campos nome, categoria, ano e fk_empresa são obrigatórios."
+            });
+        }
+
+        JogoDAO.create(nome, categoria, ano, fk_empresa, (err, jogo) => {
             if (err) return res.status(500).json({ error: err.message });
+
             res.status(201).json(jogo);
         });
     }
 
     update(req, res) {
-        const { nome, categoria, ano, fkempresa } = req.body;
+        const { nome, categoria, ano, fk_empresa } = req.body;
         const id = req.params.id;
 
-        JogoDAO.update(id, nome, categoria, ano, (err, jogo) => {
-            if (err) return res.status(500).json({ error: err.message });
-            if (!jogo) return res.status(404).json({ error: "Jogo não encontrado." });
-            res.json({ message: "Jogo editado com sucesso." });
-        });
+        JogoDAO.update(
+            id,
+            nome,
+            categoria,
+            ano,
+            fk_empresa,
+            (err, jogo) => {
+
+                if (err) return res.status(500).json({ error: err.message });
+
+                if (!jogo) {
+                    return res.status(404).json({ error: "Jogo não encontrado." });
+                }
+
+                res.json({ message: "Jogo editado com sucesso." });
+            }
+        );
     }
 
     delete(req, res) {
@@ -49,10 +67,14 @@ class JogoController {
 
         JogoDAO.delete(id, (err, jogo) => {
             if (err) return res.status(500).json({ error: err.message });
-            if (!jogo) return res.status(404).json({ error: "Jogo não encontrado." });
+
+            if (!jogo) {
+                return res.status(404).json({ error: "Jogo não encontrado." });
+            }
+
             res.json({ message: "Jogo removido com sucesso." });
         });
     }
-};
+}
 
-module.exports = new JogoController
+module.exports = new JogoController();

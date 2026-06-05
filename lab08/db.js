@@ -6,29 +6,29 @@ class Database {
 
         //Criação da tabela empresa
         const tbEmpresa = `
-            CREATE TABLE IF NOT EXISTS empresas (
+            CREATE TABLE IF NOT EXISTS Empresa (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL UNIQUE
                 );
             `;
         this.db.run(tbEmpresa, (err) => {
-            if (err) console.error("Erro ao criar tabela: ". err.message);
+            if (err) console.error("Erro ao criar tabela: ", err.message);
             else {
                 console.log("Tabela 'empresas' verificada/criada");
-                this.seed();
+                this._seed();
             }
         });
 
-        //Criação da tabela jogos
+        //Criação da tabela Jogo
 
         const tbJogo = `
-            CREATE TABLE IF NOT EXISTS jogos (
+            CREATE TABLE IF NOT EXISTS Jogo (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL,
                 categoria TEXT NOT NULL,
                 ano INTEGER NOT NULL,
                 fk_empresa INTEGER NOT NULL,
-                FOREIGN KEY (fk_empresa) REFERENCES empresa(id)
+                FOREIGN KEY (fk_empresa) REFERENCES Empresa(id)
             );
         `;
 
@@ -50,9 +50,9 @@ class Database {
     }
 
     _seed() {
-        const query = "INSERT OR IGNORE INTO empresas (nome) VALUES (?)";
+        const query = "INSERT OR IGNORE INTO Empresa (nome) VALUES (?)";
         this.db.run(query, ["Nintendo"], (err) => {
-            if (err) console.error("Erro ao criar empesa: ", err.messsage);
+            if (err) console.error("Erro ao criar empresa: ", err.message);
             else console.log("Empresa criada.");
         });
         this.db.run(query, ["Ubisoft"], (err) => {
@@ -80,4 +80,6 @@ class Database {
 
 }
 
-module.exports = new Database();
+module.exports = {
+    db: new Database().db
+}

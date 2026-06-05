@@ -24,4 +24,6 @@ app.post('/empresas', EmpresaController.create);
 app.put('/empresas/:id', EmpresaController.update);
 app.delete('/empresas/:id', EmpresaController.delete);
 
+console.log(`Servidor rodando na porta ${APP_PORT}`);
 
+app.listen(APP_PORT);
